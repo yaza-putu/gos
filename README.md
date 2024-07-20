@@ -3,7 +3,7 @@
 
 ## How to install
 ```bash
-go install https://github.com/yaza-putu/gos
+go install github.com/yaza-putu/gos@latest
 ```
 
 ## Create echo project
