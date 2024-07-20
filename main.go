@@ -1,3 +1,5 @@
+// Author : Yaza
+//
 // GOS -> Golang Starter API Tool
 // Gos is a tool used to create new projects from project templates that we have provided
 //
@@ -40,6 +42,12 @@ func main() {
 	fmt.Println(LOGO)
 
 	p := projectInfo{}
+
+	if len(os.Args) == 1 {
+		fmt.Println("suggestion \n commands:  \n - create \n\n flag : \n - echo")
+		fmt.Println("ex:gos create --echo")
+		os.Exit(0)
+	}
 
 	switch os.Args[1] {
 	case "create":
@@ -86,6 +94,12 @@ func setup(info projectInfo, folder string) error {
 
 	// change active directory
 	err = os.Chdir(info.ProjectName)
+	if err != nil {
+		return err
+	}
+
+	// remove git
+	err = runCommand("rm", "-rf", ".git")
 	if err != nil {
 		return err
 	}
