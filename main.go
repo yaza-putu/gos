@@ -3,7 +3,7 @@
 // GOS -> Golang Starter API Tool
 // Gos is a tool used to create new projects from project templates that we have provided
 //
-// echo template : https://github.com/yaza-putu/golang-starter-api
+// echo template : https://github.com/yaza-putu/golang-starter-mongo-api
 package main
 
 import (
@@ -23,7 +23,10 @@ type projectInfo struct {
 	ProjectName string
 }
 
-const ECHO = "https://github.com/yaza-putu/golang-starter-api.git"
+const (
+	ECHO_GORM  = "https://github.com/yaza-putu/golang-starter-api.git"
+	ECHO_MONGO = "https://github.com/yaza-putu/golang-starter-mongo-api.git"
+)
 
 const LOGO = `
    ______      __                     _____ __             __               ___    ____  ____
@@ -36,7 +39,8 @@ const LOGO = `
 
 func main() {
 	command := flag.NewFlagSet("create", flag.ExitOnError)
-	echoFlag := command.Bool("echo", false, "Create new project using the echo golang starter api")
+	echoFlag := command.Bool("echo", false, "Create new project using the echo gorm golang starter api")
+	echoMongoFlag := command.Bool("mongo", false, "Create new project using the echo mongo golang starter api")
 	flag.Parse()
 
 	fmt.Println(LOGO)
@@ -44,7 +48,7 @@ func main() {
 	p := projectInfo{}
 
 	if len(os.Args) == 1 {
-		fmt.Println("suggestion \n commands:  \n - create \n\n flag : \n - echo")
+		fmt.Println("suggestion \n commands:  \n - create \n\n flag : \n - echo \n - mongo")
 		fmt.Println("ex:gos create --echo")
 		os.Exit(0)
 	}
@@ -57,27 +61,36 @@ func main() {
 		// parse flag
 		command.Parse(os.Args[2:])
 
-		if *echoFlag {
-			loadingDone := make(chan bool)
-			go showLoading(loadingDone)
+		repoUrl := ""
 
-			cloneRepo(ECHO)
-			repo, err := extractRepoName(ECHO)
+		if *echoFlag && *echoMongoFlag {
+			repoUrl = ECHO_MONGO
+		} else if *echoFlag {
+			repoUrl = ECHO_GORM
+		}
 
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		if repoUrl == "" {
+			fmt.Println("Unknown flag.")
+			os.Exit(1)
+		}
 
-			err = setup(p, repo)
-			if err != nil {
-				fmt.Printf("Failed create the project : %v", err)
-				os.RemoveAll(repo)
-			} else {
-				loadingDone <- true
-			}
+		loadingDone := make(chan bool)
+		go showLoading(loadingDone)
+
+		cloneRepo(repoUrl)
+		repo, err := extractRepoName(repoUrl)
+
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		err = setup(p, repo)
+		if err != nil {
+			fmt.Printf("Failed create the project : %v", err)
+			os.RemoveAll(repo)
 		} else {
-			fmt.Println("Unknown flag")
+			loadingDone <- true
 		}
 	default:
 		fmt.Println("Unknown command.")

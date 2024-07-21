@@ -10,7 +10,12 @@ If it's not accessible, try moving it to the global bin
  mv ~/go/bin/gos /usr/local/bin
 ```
 
-## Create echo project
+## Create Echo + GORM project
 ```bash
 gos create --echo
+```
+
+## Create ECHO + MONGO project
+```bash
+gos create --echo --mongo
 ```
